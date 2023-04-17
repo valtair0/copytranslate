@@ -1,0 +1,17 @@
+{
+  "name": "crosscopy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^23.2.3"
+  },
+  "dependencies": {
+    "electron-reload": "^2.0.0-alpha.1"
+  }
+}
