@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Hello from Electron renderer!</title>
+  </head>
+  <body class="text-white text-[24px] font-sans">
+    <div class="overflow-auto">
+      <p id="actualText" class="absolute right-0 hidden">
+        Copy a text to start translating
+      </p>
+    </div>
+    <div class="overflow-auto">
+      <p id="shadowText" class="bg-black right-0 opacity-50 absolute hidden">
+        Copy a text to start translating
+      </p>
+    </div>
+  </body>
+  <script src="./renderer.js"></script>
+</html>
