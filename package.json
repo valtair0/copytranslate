@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^23.2.3"
+    "electron": "^23.2.3",
+    "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
+    "@iamtraction/google-translate": "^2.0.1",
     "electron-reload": "^2.0.0-alpha.1"
   }
 }
