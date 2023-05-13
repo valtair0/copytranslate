@@ -6,5 +6,5 @@ contextBridge.exposeInMainWorld("version", {
   electron: () => process.versions.electron,
   ping: () => ipcRenderer.invoke("copy"),
   handleCopy: (callback) => ipcRenderer.on("copy", callback),
-  // we can also expose variables, not just functions
+  openText: (text) => ipcRenderer.send("open-text", text),
 });
