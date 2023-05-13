@@ -6,47 +6,8 @@
     <title>Hello from Electron renderer!</title>
   </head>
   <body class="bg-[#111827] text-white">
-    <h1>Last copied text</h1>
-    <p id="info"></p>
-
-    <div class="flex justify-center items-center">
-      <div class="space-y-5 flex-col w-8/12">
-        <div>
-          <input
-            type="radio"
-            name="DeliveryOption"
-            id="DeliveryStandard"
-            class="peer hidden"
-          />
-
-          <label
-            for="DeliveryStandard"
-            class="flex cursor-pointer items-center justify-between rounded-lg border border-gray-100 p-4 text-sm font-medium shadow-sm hover:border-gray-200 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:ring-blue-500 dark:border-gray-800 dark:hover:border-gray-700"
-          >
-            <p class="text-gray-700 dark:text-gray-200">Standard</p>
-
-            <p class="text-gray-900 dark:text-white">Copy</p>
-          </label>
-        </div>
-
-        <div>
-          <input
-            type="radio"
-            name="DeliveryOption"
-            id="DeliveryPriority"
-            class="peer hidden"
-          />
-
-          <label
-            for="DeliveryPriority"
-            class="flex cursor-pointer items-center justify-between rounded-lg border border-gray-100 p-4 text-sm font-medium shadow-sm hover:border-gray-200 peer-checked:border-blue-500 peer-checked:ring-1 peer-checked:ring-blue-500 dark:border-gray-800 dark:hover:border-gray-700"
-          >
-            <p class="text-gray-700 dark:text-gray-200">Next Day</p>
-
-            <p class="text-gray-900 dark:text-white">Copy</p>
-          </label>
-        </div>
-      </div>
+    <div class="flex justify-center h-screen">
+      <p id="start" class="my-auto">Copy a text to start</p>
     </div>
   </body>
   <script src="./renderer.js"></script>
