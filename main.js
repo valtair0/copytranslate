@@ -77,6 +77,9 @@ let isWorking = false;
 async function checkLastCopy() {
   if (last !== clipboard.readText() && isWorking == false) {
     last = clipboard.readText();
+    last = last.replace(/[\r\n]/g, "");
+
+    console.log(last);
 
     translate(last, { from: "en", to: "tr" })
       .then((res) => {
