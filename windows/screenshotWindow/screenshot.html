@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blur Window</title>
+  </head>
+  <body style="overflow: hidden">
+    <canvas
+      width="1920"
+      height="1080"
+      style="position: absolute; top: 0; left: 0; z-index: 9999"
+      id="blur-canvas"
+    ></canvas>
+
+    <div>
+      <img
+        id="screenshotimages"
+        style="position: absolute; top: 0; left: 0; overflow: hidden"
+      />
+      <img
+        id="screenshotimage"
+        style="position: absolute; top: 0; left: 0; overflow: hidden"
+      />
+    </div>
+  </body>
+  <script src="screenshotrenderer.js"></script>
+  <script>
+    function createBlurWindow() {
+      const blurCanvas = document.querySelector("#blur-canvas");
+      const blurContext = blurCanvas.getContext("2d");
+      const coordinatesDiv = document.querySelector("#coordinates");
+      let isMouseDown = false;
+      let startX, startY;
+      let lastX, lastY;
+
+      let globalStartx;
+      let globalStarty;
+
+      let globalWidth;
+      let globalHeight;
+
+      // Draw the blur window onto the canvas
+      blurContext.fillStyle = "rgba(0, 0, 0, 0.5)";
+      blurContext.fillRect(0, 0, blurCanvas.width, blurCanvas.height);
+
+      // Listen for mouse down event
+      blurCanvas.addEventListener("mousedown", function (event) {
+        isMouseDown = true;
+        startX = lastX =
+          event.clientX - blurCanvas.getBoundingClientRect().left;
+        startY = lastY = event.clientY - blurCanvas.getBoundingClientRect().top;
+      });
+
+      // Listen for mouse up event
+      blurCanvas.addEventListener("mouseup", function (event) {
+        if (isMouseDown) {
+          isMouseDown = false;
+          const mouseX =
+            event.clientX - blurCanvas.getBoundingClientRect().left;
+          const mouseY = event.clientY - blurCanvas.getBoundingClientRect().top;
+
+          const width = mouseX - startX;
+          const height = mouseY - startY;
+
+          // Clear the canvas and redraw the background
+          blurContext.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
+          blurContext.fillStyle = "rgba(0, 0, 0, 0.5)";
+          blurContext.fillRect(0, 0, blurCanvas.width, blurCanvas.height);
+
+          // Draw the updated rectangle
+          blurContext.clearRect(startX, startY, width, height);
+
+          // Create a new canvas element to hold the cropped image
+          const croppedCanvas = document.createElement("canvas");
+          croppedCanvas.width = globalWidth;
+          croppedCanvas.height = globalHeight;
+
+          // Get the 2D context of the new canvas element
+          const croppedContext = croppedCanvas.getContext("2d");
+
+          // Draw the selected portion of the image onto the new canvas element
+          croppedContext.drawImage(
+            imageElement, // The image element to crop
+            globalStartx, // The x-coordinate of the top-left corner of the selected rectangle
+            globalStarty, // The y-coordinate of the top-left corner of the selected rectangle
+            globalWidth, // The width of the selected rectangle
+            globalHeight, // The height of the selected rectangle
+            0, // The x-coordinate of the top-left corner of the destination rectangle
+            0, // The y-coordinate of the top-left corner of the destination rectangle
+            globalWidth, // The width of the destination rectangle
+            globalHeight // The height of the destination rectangle
+          );
+
+          // Get the cropped image data as a data URL
+          const croppedImageDataUrl = croppedCanvas.toDataURL();
+
+          saveDataUrlAsFile(croppedImageDataUrl);
+
+          // Create a new image element to hold the cropped image
+          const croppedImageElement =
+            document.querySelector("#screenshotimages");
+
+          // Set the src attribute of the new image element to the cropped image data URL
+          croppedImageElement.src = croppedImageDataUrl;
+
+          // Append the new image element to the body
+          document.body.appendChild(croppedImageElement);
+
+          // Add a border line
+          blurContext.strokeStyle = "white"; // Set the border color
+          blurContext.lineWidth = 2; // Set the border width
+          blurContext.strokeRect(startX, startY, width, height);
+        }
+      });
+
+      // Listen for mouse move event
+      blurCanvas.addEventListener("mousemove", function (event) {
+        if (isMouseDown) {
+          const mouseX =
+            event.clientX - blurCanvas.getBoundingClientRect().left;
+          const mouseY = event.clientY - blurCanvas.getBoundingClientRect().top;
+
+          const width = mouseX - startX;
+          const height = mouseY - startY;
+
+          // Clear the canvas and redraw the background
+          blurContext.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
+          blurContext.fillStyle = "rgba(0, 0, 0, 0.6)";
+          blurContext.fillRect(0, 0, blurCanvas.width, blurCanvas.height);
+
+          // Draw the updated rectangle
+          blurContext.clearRect(startX, startY, width, height);
+
+          // Add a border line
+          blurContext.strokeStyle = "rgba(79,66,181)"; // Set the border color
+          blurContext.lineWidth = 2; // Set the border width
+          blurContext.strokeRect(startX, startY, width, height);
+
+          if (mouseX < startX) {
+            globalStartx = mouseX;
+            globalWidth = startX - mouseX;
+          } else {
+            globalStartx = startX;
+            globalWidth = width;
+          }
+
+          if (mouseY < startY) {
+            globalStarty = mouseY;
+            globalHeight = startY - mouseY;
+          } else {
+            globalStarty = startY;
+            globalHeight = height;
+          }
+
+          lastX = mouseX;
+          lastY = mouseY;
+        }
+      });
+    }
+
+    window.addEventListener("load", createBlurWindow);
+  </script>
+</html>

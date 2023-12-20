@@ -1,6 +1,16 @@
-const { app, BrowserWindow, webContents, ipcMain } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  globalShortcut,
+  screen,
+} = require("electron");
 const path = require("path");
-const electronReload = require("electron-reload");
+const fs = require("fs");
+const onCopy = require("./utils/onCopy");
+
+let screenWidth;
+let screenHeight;
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -15,89 +25,85 @@ const createWindow = () => {
   win.loadFile("index.html");
 
   win.setMenu(null);
-
-  win.webContents.openDevTools();
 };
 
-const textWindow = (value) => {
-  const win = new BrowserWindow({
-    width: 400,
-    height: 250,
-    x: value - 420,
-    y: 10,
-    frame: false,
-    transparent: true,
-    webPreferences: {
-      nodeIntegrationInWorker: true,
-      preload: path.join(__dirname, "preload.js"),
-    },
-  });
-
-  win.loadFile("text.html");
-
-  win.setMenu(null);
-
-  win.setAlwaysOnTop(true, "screen");
-  win.setIgnoreMouseEvents(true);
-};
+const textWindow = require("./windows/textWindow/textWindow");
 
 app.whenReady().then(() => {
+  onCopy();
+
+  //get screen size
+  const primaryDisplay = screen.getPrimaryDisplay();
+
+  screenWidth = primaryDisplay.size.width;
+  screenHeight = primaryDisplay.size.height;
+  //
+
   createWindow();
+
+  ipcMain.on("screenshotdataurl", (event, value) => {
+    convertToPngAndSve(value);
+    closeScreenshotWindow();
+  });
 
   ipcMain.on("open-text", (event, value) => {
     textWindow(value);
   });
+
+  const {
+    takeScreenshot,
+    closeScreenshotWindow,
+  } = require("./windows/screenshotWindow/screenshotWindow");
+  // Register a 'CommandOrControl+X' shortcut listener.
+  const ret = globalShortcut.register("Shift+PrintScreen", async () => {
+    takeScreenshot(screenWidth, screenHeight);
+  });
+
+  if (!ret) {
+    console.log("registration failed");
+  }
+
+  // Check whether a shortcut is registered.
+  console.log(globalShortcut.isRegistered("Shift+PrintScreen"));
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-require("electron-reload")(__dirname, {
-  electron: path.join(__dirname, "node_modules", ".bin", "electron"),
-});
-
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-const { clipboard } = require("electron");
-const translate = require("@iamtraction/google-translate");
-
-let last = "";
-function setFirstCopy() {
-  last = clipboard.readText();
-  //send copy to renderer
+async function convertToPngAndSve(dataUrl) {
+  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+  fs.writeFile("out.png", base64Data, "base64", function (err) {
+    extreactText();
+    console.log(err);
+  });
 }
 
-setFirstCopy();
+const { getTextFromImage } = require("./utils/recognizeImage");
+const translateText = require("./utils/TranslateText");
 
-let isWorking = false;
-
-async function checkLastCopy() {
-  if (last !== clipboard.readText() && isWorking == false) {
-    last = clipboard.readText();
-    last = last.replace(/[\r\n]/g, "");
-
-    console.log(last);
-
-    translate(last, { from: "en", to: "tr" })
-      .then((res) => {
-        BrowserWindow.getAllWindows()[0].webContents.send("copy", res.text);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-
-    isWorking = true;
-
-    setTimeout(() => {
-      isWorking = false;
-    }, 1000);
-  }
-  setTimeout(() => {
-    checkLastCopy();
-  }, 1000);
+async function extreactText() {
+  getTextFromImage("C:\\Users\\mert\\Desktop\\copytranslate\\out.png")
+    .then((text) => {
+      console.log(text);
+      translateText(text);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
-checkLastCopy();
+app.on("will-quit", () => {
+  // Unregister a shortcut.
+  globalShortcut.unregister("Shift+PrintScreen");
+
+  // Unregister all shortcuts.
+  globalShortcut.unregisterAll();
+
+  //close the app
+  app.quit();
+});

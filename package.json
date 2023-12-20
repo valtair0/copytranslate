@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@iamtraction/google-translate": "^2.0.1",
-    "electron-reload": "^2.0.0-alpha.1"
+    "@nodert-win10-19h1/windows.globalization": "^0.1.6",
+    "@nodert-win10-19h1/windows.graphics.imaging": "^0.1.6",
+    "@nodert-win10-19h1/windows.media.ocr": "^0.1.6",
+    "@nodert-win10-19h1/windows.storage": "^0.1.6"
   }
 }
